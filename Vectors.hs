@@ -27,10 +27,11 @@ i = V (1, 0, 0)
 j = V (0, 1, 0)
 k = V (0, 0, 1)
 
--- These are fairly obvious.  The functions defined above make these functions simpler
--- or cleaner.
+-- These are fairly obvious.  The functions defined above
+-- make these functions simpler and cleaner.
 
--- Just adding/subtracting  the corresponding components, so zipWithVec using (+) or (-)
+-- Just adding/subtracting  the corresponding components, 
+-- so zipWithVec using (+) or (-)
 vAdd :: Vector -> Vector -> Vector
 vAdd = zipWithVec (+) 
 
@@ -53,7 +54,8 @@ dot x = sumVec . zipWithVec (*) x
 
 -- Cross product - is there a neater way?
 cross :: Vector -> Vector -> Vector
-cross (V (u1, u2, u3)) (V (v1, v2, v3)) = V (u2*v3 - u3*v2, u3*v1 - u1*v3, u1*v2 - u2*v1)
+cross (V (u1, u2, u3)) (V (v1, v2, v3)) =
+   V (u2*v3 - u3*v2, u3*v1 - u1*v3, u1*v2 - u2*v1)
 
 -- Magnitude of a vector
 mag :: Vector -> Scalar
