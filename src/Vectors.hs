@@ -61,4 +61,5 @@ cross (V (u1, u2, u3)) (V (v1, v2, v3)) =
 mag :: Vector -> Scalar
 mag  = sqrt . sumVec . mapVec (^2) 
 
-
+someFunc :: IO ()
+someFunc = putStrLn "vectors"
