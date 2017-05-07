@@ -1,9 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# OPTIONS -Wall -fno-warn-type-defaults #-}
 
-module Vectors
+module Vectors 
   ( Scalar
-  , Vector
+  , Vector(..)
+  , XYZ
   , (^+^)
   , (^-^)
   , (^*)
@@ -26,50 +27,40 @@ type XYZ = (Scalar, Scalar, Scalar)
 
 newtype Vector = V { xyz :: XYZ} deriving (Show)
 
--- Define operators using  functions define later
+-- Define operators using  functions defines later
 infixl 6 ^+^
-
 (^+^) :: Vector -> Vector -> Vector
 (^+^) = vAdd
 
 infixl 6 ^-^
-
 (^-^) :: Vector -> Vector -> Vector
 (^-^) = vSub
 
 infixl 7 *^
-
 (*^) :: Scalar -> Vector -> Vector
 (*^) = sMul
 
 infixl 7 ^*
-
 (^*) :: Vector -> Scalar -> Vector
 (^*) = sMul'
 
 infixl 7 ^/
-
 (^/) :: Scalar -> Vector -> Vector
 (^/) = sDiv
 
 infixl 7 >.<
-
 (>.<) :: Vector -> Vector -> Scalar
 (>.<) = dot
 
 infixl 7 ><
-
 (><) :: Vector -> Vector -> Vector
 (><) = cross
 
 --  The 'traditional' i, j, k 
 i, j, k, origin :: Vector
 i = V (1, 0, 0)
-
 j = V (0, 1, 0)
-
 k = V (0, 0, 1)
-
 origin = V (0, 0, 0)
 
 -- Normalise 
@@ -97,8 +88,6 @@ sumVec (V (x, y, z)) = x + y + z
 -- Apply a scalar function to x,y,z components of each vector
 zipWithVec :: (Scalar -> Scalar -> Scalar) -> Vector -> Vector -> Vector
 zipWithVec f (V (x, y, z)) (V (x', y', z')) = V (f x x', f y y', f z z')
-
-
 
 -- These are fairly obvious.  The functions defined above
 -- make these functions simpler and cleaner.
