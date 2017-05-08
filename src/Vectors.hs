@@ -25,7 +25,7 @@ type Scalar = Double
 
 type XYZ = (Scalar, Scalar, Scalar)
 
-newtype Vector = V { xyz :: XYZ} deriving (Show)
+newtype Vector = V { xyz :: XYZ} deriving (Show, Eq)
 
 -- Define operators using  functions defines later
 infixl 6 ^+^
