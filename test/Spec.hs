@@ -1,5 +1,6 @@
 import Test.QuickCheck
 import Vectors as V
+
 v_cross_v_is_zero :: Vector -> Bool
 v_cross_v_is_zero v = mag (v V.>< v) == 0
 
@@ -14,6 +15,9 @@ cross_over_sum_is_sum_cross a b c = a V.>< (b V.^+^ c) == a V.>< b V.^+^ a V.>< 
 -- (a + b) x c = a x c + b x c
 sum_over_cross_is_sum_cross :: Vector -> Vector -> Vector -> Bool
 sum_over_cross_is_sum_cross a b c = (a ^+^ b) V.>< c == a V.>< c ^+^ b V.>< c
+
+jacobi :: Vector -> Vector -> Vector -> Bool 
+jacobi a b c = a V.>< (b V.>< c) ^+^ b V.>< (c V.>< a) ^+^ c V.>< (a V.>< b) == origin
 
 -- i j k under cross product
 ij :: Bool
@@ -40,11 +44,11 @@ main = do
     quickCheckWith stdArgs { maxSuccess = 1 } ij
     quickCheckWith stdArgs { maxSuccess = 1 } jk
     quickCheckWith stdArgs { maxSuccess = 1 } ki
-
     quickCheck v_cross_v_is_zero
     quickCheck a_cross_b_is_neg_b_cross_a
     quickCheck cross_over_sum_is_sum_cross
     quickCheck sum_over_cross_is_sum_cross
+    quickCheck jacobi
 
 
 
