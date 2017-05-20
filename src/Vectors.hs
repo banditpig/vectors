@@ -30,7 +30,7 @@ type XYZ = (Scalar, Scalar, Scalar)
 
 newtype Vector = V { xyz :: XYZ} deriving  (Eq)
 instance Show Vector where
-  show (V (x, y, z) ) = "(x:" ++ p x ++  " y:" ++ p y ++ " z:" ++ p z ++ ")"where 
+  show (V (x, y, z) ) = "(x:" ++ p x ++  " y:" ++ p y ++ " z:" ++ p z ++ ")" where 
    p d = printf "%.2f" d :: String
 
 instance Monoid Vector where
@@ -39,7 +39,7 @@ instance Monoid Vector where
   mappend = (^+^)
 
 
--- Define operators using  functions defines later
+-- Define operators using  functions defined later
 infixl 6 ^+^
 (^+^) :: Vector -> Vector -> Vector
 (^+^) = vAdd
