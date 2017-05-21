@@ -26,8 +26,6 @@ polygonFromVectors vs = Polygon pts where
     pts = map f vs where
         f (V (x, y, _) ) = (x, y)
 
-drawIt :: [Picture] -> IO ()
-drawIt ps = display window background (axes <> mconcat ps) 
 
 window :: Display
 window = InWindow "Window" (1400, 800) (10, 10)
@@ -38,7 +36,18 @@ background = greyN 0.7
 axes :: Picture
 axes = color red (line [ (-10000, 0), (10000,  0) ]) <>
        color red (line [ (0, -10000), (0,  10000) ])
+
+
+vecsAtOrigin :: Int -> V.Vector ->  IO ()
+vecsAtOrigin n = 
+    drawPics 
+    . take n 
+    . map lineVectorO 
+    . iterate (V.rotateXY (2*pi / fromIntegral n)) 
+    
       
+drawPics :: [Picture] -> IO ()
+drawPics ps = display window background (axes <> mconcat ps) 
 
 -- main :: IO ()
 -- main = display window background axes 
