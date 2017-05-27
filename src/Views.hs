@@ -43,9 +43,9 @@ vecsAtOrigin n = vecsAtPos n origin
 vecsAtPos  :: Int -> V.Vector ->  V.Vector -> IO ()
 vecsAtPos n p =
     drawPics 
-    . take n
-    . map (\x -> lineVector p (x ^+^ p))
-    . iterate (V.rotateXY (2*pi / fromIntegral n) )
+        . take n
+        . map (\x -> lineVector p (x ^+^ p))
+        . iterate (V.rotateXY (2*pi / fromIntegral n) )
 
 drawPics :: [Picture] -> IO ()
 drawPics ps = display window background (axes <> mconcat ps) 
