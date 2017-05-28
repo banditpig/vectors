@@ -1,5 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# OPTIONS -Wall -fno-warn-type-defaults #-}
+
 module Dynamics where
 import Text.Printf
 import Vectors as V
@@ -83,7 +84,7 @@ plotSeveralProjectiles :: Float -> Float -> Float -> IO ()
 plotSeveralProjectiles v theta dtheta = drawPics . pathPlots .  paths $  severalProjectiles v theta dtheta 
  
 plot :: IO ()
-plot = plotSeveralProjectiles 50 90 5
+plot = plotSeveralProjectiles 50 180 5
 
 
 
