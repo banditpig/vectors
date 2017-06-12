@@ -6,20 +6,36 @@ import Vectors as V
 import Data.Monoid
 
 
+type VecFunc = V.XYZ  -> V.Vector
+vf1, vf2, vf3, vf4, vf5, vf6 :: VecFunc 
+vf1 (x, y, _) =  V.V ( 1/y , 1/x, 0)
+vf2 (x, y, _) =  V.V ( exp x , exp y, 0)
+vf3 (x, y, _) =  V.V ( x /10, y/10 , 0)
+vf4 (x, y, _) =  V.V (sin y, sin x, 0)
+vf5 (x, y, _) =  V.V ( x + y, 10 /( x + y) , 0)
+vf6 (x, y, _) =  V.V (  y /10 ,  x /10, 0)
+
+fieldPics :: ((Scalar, Scalar, Scalar) -> V.Vector) -> [Picture]
+fieldPics vf = [ lineVector (V.V (x, y, 0)) (vf (x, y, 0)) | x <- [-10,-9.75.. 10], y <- [-10, -9.75.. 10] ]
+
 lineVector :: V.Vector -> V.Vector -> Picture
-lineVector  pv@(V (xp, yc, _)) v@(V (x, y, _)) 
+lineVector  pv@(V (xp, yp, _)) v@(V (x, y, _)) 
    = Line 
-     [(xp, yc),  (x, y)]  
-     <> arrowHead pv v
+     [(xp, yp),  (xp + x, yp + y)]  
+     <> arrowHeadScaled 0.1  pv v
 
 lineVectorO ::  V.Vector -> Picture
 lineVectorO = lineVector V.origin 
 
+
+arrowHeadScaled :: Float ->  V.Vector -> V.Vector -> Picture 
+arrowHeadScaled s pv v = polygonFromVectors [pv ^+^ v,pv ^+^  v ^+^ v',pv ^+^  v ^+^ v''] where 
+    vdiff     = neg . normalise $ v -- ^-^ pv
+    v'        = s *^ rotateXY (pi/8) vdiff
+    v''       = s *^ rotateXY ( (-1)*pi/8) vdiff
+    
 arrowHead :: V.Vector -> V.Vector -> Picture 
-arrowHead pv v = polygonFromVectors [v, v ^+^ v', v ^+^ v''] where 
-    vdiff   = neg . normalise $ v ^-^ pv
-    v'      = 10 *^ rotateXY (pi/8) vdiff
-    v''     = 10 *^ rotateXY ( (-1)*pi/8) vdiff
+arrowHead = arrowHeadScaled 0.1
 
 polygonFromVectors :: [V.Vector] -> Picture
 polygonFromVectors vs = Polygon pts where
@@ -31,11 +47,11 @@ window :: Display
 window = InWindow "Window" (1400, 800) (10, 10)
 
 background :: Color
-background = greyN 0.7
+background = back -- greyN 0.7
 
 axes :: Picture
-axes = color red (line [ (-10000, 0), (10000,  0) ]) <>
-       color red (line [ (0, -10000), (0,  10000) ])
+axes = color red (line [ (-50000, 0), (50000,  0) ]) <>
+       color red (line [ (0, -50000), (0,  50000) ])
 
 vecsAtOrigin :: Int -> V.Vector ->  IO ()
 vecsAtOrigin n = vecsAtPos n origin
@@ -49,7 +65,10 @@ vecsAtPos n p =
 
 drawPics :: [Picture] -> IO ()
 drawPics ps = display window background (axes <> mconcat ps) 
+back :: Color
+back = makeColorI 230 204 255 255 --makeColorI 204 255  204 100
 
--- main :: IO ()
--- main = display window background axes 
+field :: IO ()
+field = drawPics . fieldPics $ vf5
+-- main :: IO ()fieldP-- main = display window background axes 
 
