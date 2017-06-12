@@ -1,4 +1,4 @@
-.stack_work/
+.stack-work/**
 .stack-work/install/x86_64-osx/lts-8.13/8.0.2/lib/x86_64-osx-ghc-8.0.2/vectors-0.1.0.0-ArtINaC2MmX1o6UHVESn1q/Vectors.hi
 
 .stack-work/install/x86_64-osx/lts-8.13/8.0.2/pkgdb/vectors-0.1.0.0-ArtINaC2MmX1o6UHVESn1q.conf
