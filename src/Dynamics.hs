@@ -35,10 +35,16 @@ step f dt st@(t, r, v) = (t', r', v') where
     r' = r ^+^  v ^* dt      
     v' = v ^+^  f st ^* dt   
 
-solution :: Accnf -> Float -> State -> [State]
-solution a dt  = iterate (step a dt) 
+ecStep :: Accnf -> Float -> State -> State
+ecStep f dt st@(t, r, v) = (t', r', v') where
+    t' = t + dt             
+    r' = r ^+^  v' ^* dt      
+    v' = v ^+^  f st ^* dt    
 
+solutionWithStep :: ( Accnf -> Float -> State -> State )->  Accnf -> Float -> State -> [State]
+solutionWithStep stp a dt = iterate (stp a dt) 
 
+-- ================================================================
 compareYVal :: V.Vector -> Float -> (Float -> Float -> Bool) -> Bool
 compareYVal (V (_, y, _)) d p = p y d
 
@@ -63,7 +69,7 @@ projectile (_, _, _) = V (0, -9.8, 0)
 
 -- Projectile at velocity v, angle theta. Keep evaluating while the projectile is above ground
 projectileAtVandTheta :: Float -> Float -> [State]
-projectileAtVandTheta v theta = takeWhile  heightPositive  $ solution projectile 0.01 (0, p0, projInit) where
+projectileAtVandTheta v theta = takeWhile  heightPositive  $ solutionWithStep ecStep projectile 0.01 (0, p0, projInit) where
     projInit = projectileInit v theta
     p0 = V (0, 0 ,0) 
 
@@ -80,11 +86,63 @@ paths = map visualPathFromStates
 pathPlots :: [Path] -> [Picture]
 pathPlots  = map (color blue . Line )
 
+pathPlot :: Color -> Path -> Picture
+pathPlot c = color c . Line
+
 plotSeveralProjectiles :: Float -> Float -> Float -> IO ()
 plotSeveralProjectiles v theta dtheta = drawPics . pathPlots .  paths $  severalProjectiles v theta dtheta 
  
-plot :: IO ()
-plot = plotSeveralProjectiles 50 180 5
+
+plotProjectiles :: IO ()
+plotProjectiles = plotSeveralProjectiles 50 180 5
 
 
+ -- dampedDrivenOsc :: Scalar -- damping constant
+--                 -> Scalar -- drive amplitude
+--                 -> Scalar -- drive frequency
+--                 -> ( V.Vector)
+dampedDrivenOsc :: Scalar -> Scalar -> Scalar -> Accnf
+dampedDrivenOsc beta driveAmp omega (t,r,v)= (forceDamp ^+^ forceDrive ^+^ forceSpring) ^/ mass
+    where
+        forceDamp = ((-1)*beta) *^ v
+        forceDrive = driveAmp * cos (omega * t) *^ i
+        forceSpring = (-k') *^ r
+        mass = 1
+        k' = 1 -- spring constant
+
+timeDistanceX :: State -> Scalar
+timeDistanceX (_, V (x, _, _), _) = x
+
+timeDistanceXS :: [State] -> Path
+timeDistanceXS sts = zip [1..] (map timeDistanceX sts)
+
+timeVelocityX :: State -> Scalar
+timeVelocityX (_, _, V (vx, _, _) ) = vx
+
+timeVelocityXS :: [State] -> Path
+timeVelocityXS sts = zip [1..] (map timeVelocityX sts)
+
+-- Harmonic oscillator where the force is -kx
+hosc :: Scalar ->  (Time, Displacement, Velocity)  -> V.Vector 
+hosc k (_, r , _) = (-1)*k *^ r
+
+-- F = - kx - cv
+dampHosc ::  Scalar -> Scalar -> (Time, Displacement, Velocity)  -> V.Vector 
+dampHosc k c (_, V (x, y, z), V(vx, vy, vz)) = V ( -1.0 * k * x, 0, 0) ^-^ V ( c * vx, vy, vz)
+
+oneHosc :: Color ->  (Accnf -> Float -> State -> State) -> Picture
+oneHosc c stp = pathPlot c . timeVelocityXS . take  50000 $ solutionWithStep stp (hosc 2.0) 0.01 (0, p0, v0) where
+   p0 = V (0, 0, 0)
+   v0 = V (50, 0, 0)
+
+oneDampHosc :: Color ->  (Accnf -> Float -> State -> State) -> Picture
+oneDampHosc c stp = pathPlot c . timeVelocityXS . take  50000 $ solutionWithStep stp (dampHosc 10.0 1.0) 0.01 (0, p0, v0) where
+   p0 = V (0, 0, 0)
+   v0 = V (150, 0, 0)
+
+spring :: IO ()
+spring =  drawPics  [oneHosc red step, oneHosc blue ecStep, color black (line [ (0, 50), (50000,  50) ])]
+
+springDamp :: IO ()
+springDamp =  drawPics  [oneDampHosc red step, oneDampHosc blue ecStep, color black (line [ (0, 150), (50000,  150) ])]
 
