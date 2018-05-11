@@ -1,8 +1,9 @@
 module Main where
 
 
-import Vectors
-import Views
+import           Dynamics
+import           Vectors
+import           Views
 
 main :: IO ()
-main = print "0k"
+main = Dynamics.springDamp

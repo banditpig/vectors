@@ -2,16 +2,16 @@
 {-# OPTIONS -Wall -fno-warn-type-defaults #-}
 
 module Dynamics where
-import Text.Printf
-import Vectors as V
-import Graphics.Gloss 
-import Views
+import           Graphics.Gloss
+import           Text.Printf
+import           Vectors        as V
+import           Views
 
 type Time = Float
 type Displacement = V.Vector
 type Velocity = V.Vector
 
-type State = (Time, Displacement, Velocity) 
+type State = (Time, Displacement, Velocity)
 type Accnf = State -> V.Vector
 
 -- get the x, y component from the Displacement vector
@@ -19,30 +19,30 @@ displacement :: State -> Point
 displacement (_, V (x, y, _) , V (_, _, _)) = (x, y)
 
 visualPathFromStates :: [State] -> Path
-visualPathFromStates  = map displacement 
+visualPathFromStates  = map displacement
 
 -- get the x, y component from the Velocity vector
 velocity :: State -> Point
 velocity (_, V (_, _, _) , V (velx, vely, _)) = (velx, vely)
 
 visualVelFromStates :: [State] -> Path
-visualVelFromStates  = map velocity 
+visualVelFromStates  = map velocity
 
 
 step :: Accnf -> Float -> State -> State
 step f dt st@(t, r, v) = (t', r', v') where
-    t' = t + dt             
-    r' = r ^+^  v ^* dt      
-    v' = v ^+^  f st ^* dt   
+    t' = t + dt
+    r' = r ^+^  v ^* dt
+    v' = v ^+^  f st ^* dt
 
 ecStep :: Accnf -> Float -> State -> State
 ecStep f dt st@(t, r, v) = (t', r', v') where
-    t' = t + dt             
-    r' = r ^+^  v' ^* dt      
-    v' = v ^+^  f st ^* dt    
+    t' = t + dt
+    r' = r ^+^  v' ^* dt
+    v' = v ^+^  f st ^* dt
 
 solutionWithStep :: ( Accnf -> Float -> State -> State )->  Accnf -> Float -> State -> [State]
-solutionWithStep stp a dt = iterate (stp a dt) 
+solutionWithStep stp a dt = iterate (stp a dt)
 
 -- ================================================================
 compareYVal :: V.Vector -> Float -> (Float -> Float -> Bool) -> Bool
@@ -55,7 +55,7 @@ heightPositive :: State -> Bool
 heightPositive (_, d, _) = yNZero d
 
 displayStates :: [State] -> String
-displayStates   = foldr f ""  where 
+displayStates   = foldr f ""  where
     f (t, p, v) str = str ++ "T:" ++ (printf "%.4f" t :: String) ++ " P:" ++ show p ++ " V:" ++ show v ++ "\n"
 
 
@@ -71,16 +71,16 @@ projectile (_, _, _) = V (0, -9.8, 0)
 projectileAtVandTheta :: Float -> Float -> [State]
 projectileAtVandTheta v theta = takeWhile  heightPositive  $ solutionWithStep ecStep projectile 0.01 (0, p0, projInit) where
     projInit = projectileInit v theta
-    p0 = V (0, 0 ,0) 
+    p0 = V (0, 0 ,0)
 
 -- calculate projectile at v theta and keep reducing theta until < 0
 severalProjectiles :: Float -> Float -> Float -> [[State]]
-severalProjectiles v theta dtheta 
+severalProjectiles v theta dtheta
     | theta > 0 = projectileAtVandTheta v theta : severalProjectiles v (theta -  dtheta) dtheta
     | otherwise = []
 
 paths :: [[State]]  -> [Path]
-paths = map visualPathFromStates 
+paths = map visualPathFromStates
 
 -- make a picture from each path
 pathPlots :: [Path] -> [Picture]
@@ -90,8 +90,8 @@ pathPlot :: Color -> Path -> Picture
 pathPlot c = color c . Line
 
 plotSeveralProjectiles :: Float -> Float -> Float -> IO ()
-plotSeveralProjectiles v theta dtheta = drawPics . pathPlots .  paths $  severalProjectiles v theta dtheta 
- 
+plotSeveralProjectiles v theta dtheta = drawPics . pathPlots .  paths $  severalProjectiles v theta dtheta
+
 
 plotProjectiles :: IO ()
 plotProjectiles = plotSeveralProjectiles 50 180 5
@@ -123,11 +123,11 @@ timeVelocityXS :: [State] -> Path
 timeVelocityXS sts = zip [1..] (map timeVelocityX sts)
 
 -- Harmonic oscillator where the force is -kx
-hosc :: Scalar ->  (Time, Displacement, Velocity)  -> V.Vector 
+hosc :: Scalar ->  (Time, Displacement, Velocity)  -> V.Vector
 hosc k (_, r , _) = (-1)*k *^ r
 
 -- F = - kx - cv
-dampHosc ::  Scalar -> Scalar -> (Time, Displacement, Velocity)  -> V.Vector 
+dampHosc ::  Scalar -> Scalar -> (Time, Displacement, Velocity)  -> V.Vector
 dampHosc k c (_, V (x, y, z), V(vx, vy, vz)) = V ( -1.0 * k * x, 0, 0) ^-^ V ( c * vx, vy, vz)
 
 oneHosc :: Color ->  (Accnf -> Float -> State -> State) -> Picture
@@ -145,4 +145,3 @@ spring =  drawPics  [oneHosc red step, oneHosc blue ecStep, color black (line [ 
 
 springDamp :: IO ()
 springDamp =  drawPics  [oneDampHosc red step, oneDampHosc blue ecStep, color black (line [ (0, 150), (50000,  150) ])]
-
